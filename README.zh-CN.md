@@ -11,7 +11,7 @@ iAnchor 将配置文件/目录移动到 iCloud Drive 中的指定目录，然后
 ## 安装
 
 ```bash
-brew tap vissong/anchor https://github.com/vissong/anchor
+brew tap vissong/ianchor https://github.com/vissong/ianchor
 brew install ianchor
 ```
 

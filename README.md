@@ -11,7 +11,7 @@ iAnchor moves config files/directories into an iCloud Drive directory, then crea
 ## Install
 
 ```bash
-brew tap vissong/anchor https://github.com/vissong/anchor
+brew tap vissong/ianchor https://github.com/vissong/ianchor
 brew install ianchor
 ```
 
