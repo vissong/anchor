@@ -1,10 +1,10 @@
 {
-  "name": "anchor-cli",
+  "name": "@vissong/ianchor",
   "version": "0.1.0",
   "description": "Sync config files to iCloud Drive via symlinks",
   "type": "module",
   "bin": {
-    "anchor": "./bin/anchor.js"
+    "ianchor": "./bin/ianchor.js"
   },
   "scripts": {
     "test": "node --test test/**/*.test.js"

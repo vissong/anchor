@@ -17,14 +17,14 @@ const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
 
 program
-  .name('anchor')
+  .name('ianchor')
   .description('Sync config files to iCloud Drive via symlinks')
   .version(pkg.version)
-  .option('--dir <name>', 'config directory name in iCloud Drive', 'anchor');
+  .option('--dir <name>', 'config directory name in iCloud Drive', 'ianchor');
 
 program
   .command('init')
-  .description('Initialize anchor: create iCloud config directory and database')
+  .description('Initialize ianchor: create iCloud config directory and database')
   .action(async () => {
     try {
       const icloudBase = getICloudDrivePath();
@@ -34,14 +34,14 @@ program
       if (!process.argv.includes('--dir')) {
         const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
         const answer = await rl.question(
-          `iCloud config directory name ${chalk.dim('(default: anchor)')}: `
+          `iCloud config directory name ${chalk.dim('(default: ianchor)')}: `
         );
         rl.close();
-        dirName = answer.trim() || 'anchor';
+        dirName = answer.trim() || 'ianchor';
       }
 
       const result = initAnchor({ icloudBase, dirName });
-      console.log(chalk.green('Anchor initialized!'));
+      console.log(chalk.green('iAnchor initialized!'));
       console.log(`Config directory: ${result.configDir}`);
       if (result.discovered > 0) {
         console.log(`Discovered ${result.discovered} existing file(s).`);

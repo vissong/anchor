@@ -20,16 +20,16 @@ describe('icloud', () => {
     let tmpDir;
 
     before(() => {
-      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-test-'));
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-test-'));
     });
 
     after(() => {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it('returns icloudBase/anchor by default', () => {
+    it('returns icloudBase/ianchor by default', () => {
       const result = getConfigDir(tmpDir);
-      assert.equal(result, path.join(tmpDir, 'anchor'));
+      assert.equal(result, path.join(tmpDir, 'ianchor'));
     });
 
     it('returns icloudBase/<custom> when dirName is provided', () => {
@@ -42,7 +42,7 @@ describe('icloud', () => {
     let tmpDir;
 
     before(() => {
-      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-test-'));
+      tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-test-'));
     });
 
     after(() => {

@@ -10,7 +10,7 @@ describe('remove', () => {
   let tmpDir, configDir, originalDir, db;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-remove-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-remove-test-'));
     configDir = path.join(tmpDir, 'config');
     originalDir = path.join(tmpDir, 'home');
     fs.mkdirSync(configDir, { recursive: true });

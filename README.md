@@ -1,22 +1,22 @@
-# Anchor
+# iAnchor
 
 Sync your config files to iCloud Drive via symlinks. Keep dotfiles and app configs in sync across all your Macs automatically.
 
 ## How It Works
 
-Anchor moves config files/directories into an iCloud Drive directory, then creates symlinks at the original locations. iCloud syncs the files, and symlinks ensure your apps still find their configs.
+iAnchor moves config files/directories into an iCloud Drive directory, then creates symlinks at the original locations. iCloud syncs the files, and symlinks ensure your apps still find their configs.
 
 ## Install
 
 ```bash
 brew tap vissong/anchor https://github.com/vissong/anchor
-brew install anchor
+brew install ianchor
 ```
 
 Or via npm:
 
 ```bash
-npm install -g anchor-cli
+npm install -g @vissong/ianchor
 ```
 
 ## Usage
@@ -24,30 +24,43 @@ npm install -g anchor-cli
 ### Initialize
 
 ```bash
-anchor init
-anchor init --dir dotfiles  # custom directory name
+ianchor init
+ianchor init --dir dotfiles  # custom directory name
 ```
 
 ### Add a config file
 
 ```bash
-anchor add ~/.zshrc
-anchor add ~/.ssh --name ssh-config
-anchor add ~/.config/alacritty
+ianchor add ~/.zshrc
+ianchor add ~/.ssh --name ssh-config
+ianchor add ~/.config/alacritty
 ```
 
 ### List tracked configs
 
 ```bash
-anchor list
-anchor list --json
+ianchor list
+ianchor list --json
 ```
 
 ### Recover a config file
 
 ```bash
-anchor recover .zshrc
-anchor recover --force .zshrc  # overwrite existing file
+ianchor recover .zshrc
+ianchor recover --force .zshrc  # overwrite existing file
+```
+
+### Relink an unlinked file
+
+```bash
+ianchor relink .zshrc
+```
+
+### Remove a tracked file
+
+```bash
+ianchor remove .zshrc
+ianchor remove -y .zshrc  # skip confirmation
 ```
 
 ## License

@@ -10,7 +10,7 @@ describe('recover', () => {
   let tmpDir, configDir, originalDir, db;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-recover-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-recover-test-'));
     configDir = path.join(tmpDir, 'config');
     originalDir = path.join(tmpDir, 'home');
     fs.mkdirSync(configDir, { recursive: true });

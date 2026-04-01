@@ -11,7 +11,7 @@ describe('list', () => {
   let db;
 
   before(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-list-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-list-test-'));
     sourceDir = path.join(tmpDir, 'home');
     fs.mkdirSync(sourceDir, { recursive: true });
 
@@ -59,7 +59,7 @@ describe('list', () => {
   });
 
   it('returns message when no entries exist', () => {
-    const emptyDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-list-empty-'));
+    const emptyDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-list-empty-'));
     const emptyDb = openDb(emptyDir);
     const output = listEntries(emptyDb, { json: false, configDir: emptyDir });
     assert.ok(output.includes('No entries'));
@@ -68,7 +68,7 @@ describe('list', () => {
   });
 
   it('detects deleted status when iCloud file is missing', () => {
-    const delDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-list-del-'));
+    const delDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-list-del-'));
     const delDb = openDb(delDir);
     // Entry in db but no file on disk
     addEntry(delDb, { name: 'gone.txt', originalPath: '/tmp/fake', type: 'file', status: 'linked' });
@@ -79,7 +79,7 @@ describe('list', () => {
 
     // Table output should contain remove hint
     const tableOutput = listEntries(delDb, { json: false, configDir: delDir });
-    assert.ok(tableOutput.includes('anchor remove'));
+    assert.ok(tableOutput.includes('ianchor remove'));
 
     delDb.close();
     fs.rmSync(delDir, { recursive: true, force: true });

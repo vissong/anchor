@@ -9,7 +9,7 @@ describe('init', () => {
   let tmpDir;
 
   before(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-init-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-init-test-'));
   });
 
   after(() => {
@@ -20,7 +20,7 @@ describe('init', () => {
     const result = initAnchor({ icloudBase: tmpDir, dirName: 'config', interactive: false });
     const configDir = path.join(tmpDir, 'config');
     assert.ok(fs.existsSync(configDir));
-    assert.ok(fs.existsSync(path.join(configDir, 'anchor.db')));
+    assert.ok(fs.existsSync(path.join(configDir, 'ianchor.db')));
     assert.equal(result.configDir, configDir);
     assert.equal(result.discovered, 0);
   });

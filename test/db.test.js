@@ -10,7 +10,7 @@ describe('db', () => {
   let db;
 
   before(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-db-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-db-test-'));
     db = openDb(tmpDir);
   });
 

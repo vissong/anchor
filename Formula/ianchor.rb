@@ -1,4 +1,4 @@
-class Anchor < Formula
+class Ianchor < Formula
   desc "Sync config files to iCloud Drive via symlinks"
   homepage "https://github.com/vissong/anchor"
   url "https://github.com/vissong/anchor/archive/refs/tags/v0.1.0.tar.gz"
@@ -10,10 +10,10 @@ class Anchor < Formula
   def install
     system "npm", "install", "--omit=dev"
     libexec.install Dir["*"]
-    bin.install_symlink libexec/"bin/anchor.js" => "anchor"
+    bin.install_symlink libexec/"bin/ianchor.js" => "ianchor"
   end
 
   test do
-    assert_match version.to_s, shell_output("#{bin}/anchor --version")
+    assert_match version.to_s, shell_output("#{bin}/ianchor --version")
   end
 end

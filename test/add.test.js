@@ -10,7 +10,7 @@ describe('add', () => {
   let tmpDir, configDir, sourceDir, db;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-add-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-add-test-'));
     configDir = path.join(tmpDir, 'config');
     sourceDir = path.join(tmpDir, 'home');
     fs.mkdirSync(configDir, { recursive: true });

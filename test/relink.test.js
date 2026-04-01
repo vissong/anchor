@@ -10,7 +10,7 @@ describe('relink', () => {
   let tmpDir, configDir, originalDir, db;
 
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anchor-relink-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-relink-test-'));
     configDir = path.join(tmpDir, 'config');
     originalDir = path.join(tmpDir, 'home');
     fs.mkdirSync(configDir, { recursive: true });
