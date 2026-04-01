@@ -2,6 +2,8 @@
 
 Sync your config files to iCloud Drive via symlinks. Keep dotfiles and app configs in sync across all your Macs automatically.
 
+[中文文档](README.zh-CN.md)
+
 ## How It Works
 
 iAnchor moves config files/directories into an iCloud Drive directory, then creates symlinks at the original locations. iCloud syncs the files, and symlinks ensure your apps still find their configs.
