@@ -24,14 +24,14 @@ describe('add', () => {
 
     await addFile(db, { sourcePath, configDir });
 
-    assert.ok(fs.existsSync(path.join(configDir, '.zshrc')));
+    assert.ok(fs.existsSync(path.join(configDir, 'zshrc')));
     const stat = fs.lstatSync(sourcePath);
     assert.ok(stat.isSymbolicLink());
     const target = fs.readlinkSync(sourcePath);
-    assert.equal(target, path.join(configDir, '.zshrc'));
+    assert.equal(target, path.join(configDir, 'zshrc'));
     assert.equal(fs.readFileSync(sourcePath, 'utf8'), 'export PATH=$PATH');
-    const entry = getEntry(db, '.zshrc');
-    assert.equal(entry.name, '.zshrc');
+    const entry = getEntry(db, 'zshrc');
+    assert.equal(entry.name, 'zshrc');
     assert.equal(entry.original_path, sourcePath);
     assert.equal(entry.type, 'file');
     assert.equal(entry.status, 'linked');
@@ -47,10 +47,10 @@ describe('add', () => {
 
     await addFile(db, { sourcePath, configDir });
 
-    assert.ok(fs.existsSync(path.join(configDir, '.ssh', 'config')));
+    assert.ok(fs.existsSync(path.join(configDir, 'ssh', 'config')));
     const stat = fs.lstatSync(sourcePath);
     assert.ok(stat.isSymbolicLink());
-    assert.equal(fs.readlinkSync(sourcePath), path.join(configDir, '.ssh'));
+    assert.equal(fs.readlinkSync(sourcePath), path.join(configDir, 'ssh'));
 
     db.close();
     fs.rmSync(tmpDir, { recursive: true, force: true });
@@ -96,7 +96,7 @@ describe('add', () => {
   it('throws if name conflicts and no onConflict provided', async () => {
     const sourcePath = path.join(sourceDir, '.zshrc');
     fs.writeFileSync(sourcePath, 'data');
-    fs.writeFileSync(path.join(configDir, '.zshrc'), 'existing');
+    fs.writeFileSync(path.join(configDir, 'zshrc'), 'existing');
 
     await assert.rejects(
       () => addFile(db, { sourcePath, configDir }),
