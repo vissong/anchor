@@ -9,7 +9,7 @@ Anchor moves config files/directories into an iCloud Drive directory, then creat
 ## Install
 
 ```bash
-brew tap vissong/anchor
+brew tap vissong/anchor https://github.com/vissong/anchor
 brew install anchor
 ```
 
