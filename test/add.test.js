@@ -18,11 +18,11 @@ describe('add', () => {
     db = openDb(configDir);
   });
 
-  it('moves a file to config dir and creates symlink', (t) => {
+  it('moves a file to config dir and creates symlink', async () => {
     const sourcePath = path.join(sourceDir, '.zshrc');
     fs.writeFileSync(sourcePath, 'export PATH=$PATH');
 
-    addFile(db, { sourcePath, configDir });
+    await addFile(db, { sourcePath, configDir });
 
     assert.ok(fs.existsSync(path.join(configDir, '.zshrc')));
     const stat = fs.lstatSync(sourcePath);
@@ -40,12 +40,12 @@ describe('add', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('moves a directory to config dir and creates symlink', () => {
+  it('moves a directory to config dir and creates symlink', async () => {
     const sourcePath = path.join(sourceDir, '.ssh');
     fs.mkdirSync(sourcePath);
     fs.writeFileSync(path.join(sourcePath, 'config'), 'Host *');
 
-    addFile(db, { sourcePath, configDir });
+    await addFile(db, { sourcePath, configDir });
 
     assert.ok(fs.existsSync(path.join(configDir, '.ssh', 'config')));
     const stat = fs.lstatSync(sourcePath);
@@ -56,11 +56,11 @@ describe('add', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('uses custom name when provided', () => {
+  it('uses custom name when provided', async () => {
     const sourcePath = path.join(sourceDir, 'settings.json');
     fs.writeFileSync(sourcePath, '{}');
 
-    addFile(db, { sourcePath, configDir, name: 'vscode-settings' });
+    await addFile(db, { sourcePath, configDir, name: 'vscode-settings' });
 
     assert.ok(fs.existsSync(path.join(configDir, 'vscode-settings')));
     const entry = getEntry(db, 'vscode-settings');
@@ -70,8 +70,8 @@ describe('add', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('throws if source does not exist', () => {
-    assert.throws(
+  it('throws if source does not exist', async () => {
+    await assert.rejects(
       () => addFile(db, { sourcePath: '/nonexistent', configDir }),
       { message: /does not exist/ }
     );
@@ -79,13 +79,13 @@ describe('add', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('throws if source is already a symlink', () => {
+  it('throws if source is already a symlink', async () => {
     const realFile = path.join(sourceDir, 'real');
     fs.writeFileSync(realFile, 'data');
     const linkPath = path.join(sourceDir, 'link');
     fs.symlinkSync(realFile, linkPath);
 
-    assert.throws(
+    await assert.rejects(
       () => addFile(db, { sourcePath: linkPath, configDir }),
       { message: /already a symlink/ }
     );
@@ -93,13 +93,51 @@ describe('add', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('throws if name conflicts in config dir', () => {
+  it('throws if name conflicts and no onConflict provided', async () => {
     const sourcePath = path.join(sourceDir, '.zshrc');
     fs.writeFileSync(sourcePath, 'data');
     fs.writeFileSync(path.join(configDir, '.zshrc'), 'existing');
 
-    assert.throws(
+    await assert.rejects(
       () => addFile(db, { sourcePath, configDir }),
+      { message: /already exists in iCloud directory/ }
+    );
+    db.close();
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('uses prefix from onConflict when name conflicts', async () => {
+    const sourcePath = path.join(sourceDir, 'test.txt');
+    fs.writeFileSync(sourcePath, 'my data');
+    fs.writeFileSync(path.join(configDir, 'test.txt'), 'existing');
+
+    await addFile(db, {
+      sourcePath,
+      configDir,
+      onConflict: async () => 'abc',
+    });
+
+    assert.ok(fs.existsSync(path.join(configDir, 'abc_test.txt')));
+    assert.ok(fs.lstatSync(sourcePath).isSymbolicLink());
+    assert.equal(fs.readlinkSync(sourcePath), path.join(configDir, 'abc_test.txt'));
+    const entry = getEntry(db, 'abc_test.txt');
+    assert.equal(entry.original_path, sourcePath);
+
+    db.close();
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it('throws if onConflict returns empty prefix and still conflicts', async () => {
+    const sourcePath = path.join(sourceDir, 'test.txt');
+    fs.writeFileSync(sourcePath, 'data');
+    fs.writeFileSync(path.join(configDir, 'test.txt'), 'existing');
+
+    await assert.rejects(
+      () => addFile(db, {
+        sourcePath,
+        configDir,
+        onConflict: async () => null,
+      }),
       { message: /already exists in iCloud directory/ }
     );
     db.close();

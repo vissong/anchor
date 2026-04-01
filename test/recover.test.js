@@ -32,11 +32,16 @@ describe('recover', () => {
     assert.ok(!fs.existsSync(path.join(configDir, '.zshrc')));
     assert.equal(getEntry(db, '.zshrc'), undefined);
 
+    // Backup should exist in .bak
+    const bakPath = path.join(configDir, '.bak', '.zshrc');
+    assert.ok(fs.existsSync(bakPath));
+    assert.equal(fs.readFileSync(bakPath, 'utf8'), 'export PATH=$PATH');
+
     db.close();
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('recovers a directory', () => {
+  it('recovers a directory and creates backup', () => {
     const originalPath = path.join(originalDir, '.ssh');
     fs.mkdirSync(path.join(configDir, '.ssh'));
     fs.writeFileSync(path.join(configDir, '.ssh', 'config'), 'Host *');
@@ -48,6 +53,11 @@ describe('recover', () => {
     assert.ok(fs.existsSync(path.join(originalPath, 'config')));
     assert.ok(!fs.lstatSync(originalPath).isSymbolicLink());
     assert.ok(!fs.existsSync(path.join(configDir, '.ssh')));
+
+    // Backup should exist in .bak
+    const bakPath = path.join(configDir, '.bak', '.ssh', 'config');
+    assert.ok(fs.existsSync(bakPath));
+    assert.equal(fs.readFileSync(bakPath, 'utf8'), 'Host *');
 
     db.close();
     fs.rmSync(tmpDir, { recursive: true, force: true });
@@ -62,7 +72,7 @@ describe('recover', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('throws if file conflicts at original path', () => {
+  it('throws if file conflicts at original path but backup still exists', () => {
     const originalPath = path.join(originalDir, '.zshrc');
     fs.writeFileSync(path.join(configDir, '.zshrc'), 'icloud version');
     fs.writeFileSync(originalPath, 'local version');
@@ -72,6 +82,13 @@ describe('recover', () => {
       () => recoverFile(db, { name: '.zshrc', configDir }),
       { message: /already exists at original path/ }
     );
+
+    // Backup should still exist even though recover failed
+    const bakPath = path.join(configDir, '.bak', '.zshrc');
+    assert.ok(fs.existsSync(bakPath));
+    assert.equal(fs.readFileSync(bakPath, 'utf8'), 'icloud version');
+    // Original iCloud file should still be intact
+    assert.ok(fs.existsSync(path.join(configDir, '.zshrc')));
 
     db.close();
     fs.rmSync(tmpDir, { recursive: true, force: true });

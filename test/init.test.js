@@ -49,4 +49,30 @@ describe('init', () => {
       { message: 'iCloud Drive not found. Please ensure iCloud is enabled.' }
     );
   });
+
+  it('ignores .DS_Store files', () => {
+    const configDir = path.join(tmpDir, 'ignore-test');
+    fs.mkdirSync(configDir, { recursive: true });
+    fs.writeFileSync(path.join(configDir, '.DS_Store'), '');
+    fs.writeFileSync(path.join(configDir, '.zshrc'), 'test');
+
+    const result = initAnchor({ icloudBase: tmpDir, dirName: 'ignore-test', interactive: false });
+    assert.equal(result.discovered, 1);
+    assert.ok(!result.entries.some(e => e.name === '.DS_Store'));
+    assert.ok(result.entries.some(e => e.name === '.zshrc'));
+  });
+
+  it('ignores image files', () => {
+    const configDir = path.join(tmpDir, 'img-test');
+    fs.mkdirSync(configDir, { recursive: true });
+    fs.writeFileSync(path.join(configDir, 'screenshot.png'), '');
+    fs.writeFileSync(path.join(configDir, 'photo.jpg'), '');
+    fs.writeFileSync(path.join(configDir, '.gitconfig'), 'test');
+
+    const result = initAnchor({ icloudBase: tmpDir, dirName: 'img-test', interactive: false });
+    assert.equal(result.discovered, 1);
+    assert.ok(result.entries.some(e => e.name === '.gitconfig'));
+    assert.ok(!result.entries.some(e => e.name === 'screenshot.png'));
+    assert.ok(!result.entries.some(e => e.name === 'photo.jpg'));
+  });
 });

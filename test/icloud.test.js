@@ -27,9 +27,9 @@ describe('icloud', () => {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it('returns icloudBase/config by default', () => {
+    it('returns icloudBase/anchor by default', () => {
       const result = getConfigDir(tmpDir);
-      assert.equal(result, path.join(tmpDir, 'config'));
+      assert.equal(result, path.join(tmpDir, 'anchor'));
     });
 
     it('returns icloudBase/<custom> when dirName is provided', () => {
