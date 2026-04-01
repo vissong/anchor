@@ -13,12 +13,6 @@ brew tap vissong/anchor https://github.com/vissong/anchor
 brew install ianchor
 ```
 
-Or via npm:
-
-```bash
-npm install -g @vissong/ianchor
-```
-
 ## Usage
 
 ### Initialize
