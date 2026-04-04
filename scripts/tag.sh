@@ -47,3 +47,4 @@ git tag "$TAG"
 git push origin "$TAG"
 
 echo "==> Done! ${TAG} pushed. GitHub Actions will handle the release."
+echo "==> After GitHub Actions completes, run: brew update && brew upgrade ianchor"
