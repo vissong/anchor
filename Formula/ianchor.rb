@@ -11,6 +11,11 @@ class Ianchor < Formula
     system "npm", "install", "--omit=dev"
     libexec.install Dir["*"]
     bin.install_symlink libexec/"bin/ianchor.js" => "ianchor"
+
+    # Generate and install shell completions
+    output = Utils.safe_popen_read(libexec/"bin/ianchor.js", "completion")
+    (bash_completion/"ianchor").write output
+    (zsh_completion/"_ianchor").write output
   end
 
   test do

@@ -33,15 +33,15 @@ describe('list', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('returns formatted table string', () => {
-    const output = listEntries(db, { json: false, configDir: tmpDir });
+  it('returns formatted table string', async () => {
+    const output = await listEntries(db, { json: false, configDir: tmpDir });
     assert.ok(typeof output === 'string');
     assert.ok(output.includes('.zshrc'));
     assert.ok(output.includes('.ssh'));
   });
 
-  it('detects linked status from actual symlink', () => {
-    const output = listEntries(db, { json: true, configDir: tmpDir });
+  it('detects linked status from actual symlink', async () => {
+    const output = await listEntries(db, { json: true, configDir: tmpDir });
     const parsed = JSON.parse(output);
     const zshrc = parsed.find(e => e.name === '.zshrc');
     const ssh = parsed.find(e => e.name === '.ssh');
@@ -51,34 +51,34 @@ describe('list', () => {
     assert.equal(ssh.status, 'unlinked');
   });
 
-  it('returns JSON array when json option is true', () => {
-    const output = listEntries(db, { json: true, configDir: tmpDir });
+  it('returns JSON array when json option is true', async () => {
+    const output = await listEntries(db, { json: true, configDir: tmpDir });
     const parsed = JSON.parse(output);
     assert.ok(Array.isArray(parsed));
     assert.equal(parsed.length, 2);
   });
 
-  it('returns message when no entries exist', () => {
+  it('returns message when no entries exist', async () => {
     const emptyDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-list-empty-'));
     const emptyDb = openDb(emptyDir);
-    const output = listEntries(emptyDb, { json: false, configDir: emptyDir });
+    const output = await listEntries(emptyDb, { json: false, configDir: emptyDir });
     assert.ok(output.includes('No entries'));
     emptyDb.close();
     fs.rmSync(emptyDir, { recursive: true, force: true });
   });
 
-  it('detects deleted status when iCloud file is missing', () => {
+  it('detects deleted status when iCloud file is missing', async () => {
     const delDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ianchor-list-del-'));
     const delDb = openDb(delDir);
     // Entry in db but no file on disk
     addEntry(delDb, { name: 'gone.txt', originalPath: '/tmp/fake', type: 'file', status: 'linked' });
 
-    const output = listEntries(delDb, { json: true, configDir: delDir });
+    const output = await listEntries(delDb, { json: true, configDir: delDir });
     const parsed = JSON.parse(output);
     assert.equal(parsed[0].status, 'deleted');
 
     // Table output should contain remove hint
-    const tableOutput = listEntries(delDb, { json: false, configDir: delDir });
+    const tableOutput = await listEntries(delDb, { json: false, configDir: delDir });
     assert.ok(tableOutput.includes('ianchor remove'));
 
     delDb.close();

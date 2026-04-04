@@ -3,8 +3,8 @@
 import { program } from 'commander';
 import chalk from 'chalk';
 import readline from 'node:readline/promises';
-import { getICloudDrivePath, getConfigDir } from '../lib/icloud.js';
-import { openDb } from '../lib/db.js';
+import { getICloudDrivePath, getConfigDir, saveConfig } from '../lib/icloud.js';
+import { openDb, getAllEntries } from '../lib/db.js';
 import { initAnchor } from '../lib/init.js';
 import { listEntries } from '../lib/list.js';
 import { addFile } from '../lib/add.js';
@@ -19,19 +19,19 @@ const pkg = require('../package.json');
 program
   .name('ianchor')
   .description('Sync config files to iCloud Drive via symlinks')
-  .version(pkg.version)
-  .option('--dir <name>', 'config directory name in iCloud Drive', 'ianchor');
+  .version(pkg.version);
 
 program
   .command('init')
   .description('Initialize ianchor: create iCloud config directory and database')
-  .action(async () => {
+  .option('--dir <name>', 'config directory name in iCloud Drive')
+  .action(async (options) => {
     try {
       const icloudBase = getICloudDrivePath();
-      let dirName = program.opts().dir;
+      let dirName = options.dir;
 
       // If user didn't explicitly pass --dir, prompt interactively
-      if (!process.argv.includes('--dir')) {
+      if (!dirName) {
         const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
         const answer = await rl.question(
           `iCloud config directory name ${chalk.dim('(default: ianchor)')}: `
@@ -41,6 +41,7 @@ program
       }
 
       const result = initAnchor({ icloudBase, dirName });
+      saveConfig({ dirName });
       console.log(chalk.green('iAnchor initialized!'));
       console.log(`Config directory: ${result.configDir}`);
       if (result.discovered > 0) {
@@ -63,12 +64,31 @@ program
   .command('list')
   .description('List all tracked config files')
   .option('--json', 'output as JSON')
-  .action((options) => {
+  .action(async (options) => {
     try {
       const icloudBase = getICloudDrivePath();
-      const configDir = getConfigDir(icloudBase, program.opts().dir);
+      const configDir = getConfigDir(icloudBase);
       const db = openDb(configDir);
-      const output = listEntries(db, { json: options.json, configDir });
+
+      const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+      let frameIdx = 0;
+      let spinnerInterval;
+      const spinnerTimeout = setTimeout(() => {
+        process.stderr.write(`${frames[0]} Loading entries…`);
+        spinnerInterval = setInterval(() => {
+          frameIdx = (frameIdx + 1) % frames.length;
+          process.stderr.write(`\r${frames[frameIdx]} Loading entries…`);
+        }, 80);
+      }, 100);
+
+      const output = await listEntries(db, { json: options.json, configDir });
+
+      clearTimeout(spinnerTimeout);
+      if (spinnerInterval) {
+        clearInterval(spinnerInterval);
+        process.stderr.write('\r\x1b[K');
+      }
+
       console.log(output);
       db.close();
     } catch (err) {
@@ -85,7 +105,7 @@ program
   .action(async (source, options) => {
     try {
       const icloudBase = getICloudDrivePath();
-      const configDir = getConfigDir(icloudBase, program.opts().dir);
+      const configDir = getConfigDir(icloudBase);
       const db = openDb(configDir);
       const result = await addFile(db, {
         sourcePath: source,
@@ -118,7 +138,7 @@ program
   .action((name, options) => {
     try {
       const icloudBase = getICloudDrivePath();
-      const configDir = getConfigDir(icloudBase, program.opts().dir);
+      const configDir = getConfigDir(icloudBase);
       const db = openDb(configDir);
       const result = recoverFile(db, {
         name,
@@ -142,7 +162,7 @@ program
   .action((name) => {
     try {
       const icloudBase = getICloudDrivePath();
-      const configDir = getConfigDir(icloudBase, program.opts().dir);
+      const configDir = getConfigDir(icloudBase);
       const db = openDb(configDir);
       const result = relinkFile(db, { name, configDir });
       console.log(chalk.green(`Relinked "${result.name}".`));
@@ -161,7 +181,7 @@ program
   .action(async (name, options) => {
     try {
       const icloudBase = getICloudDrivePath();
-      const configDir = getConfigDir(icloudBase, program.opts().dir);
+      const configDir = getConfigDir(icloudBase);
       const db = openDb(configDir);
 
       if (!options.yes) {
@@ -187,6 +207,67 @@ program
       console.error(chalk.red(`Error: ${err.message}`));
       process.exit(1);
     }
+  });
+
+// Hidden command: output entry names for shell completion
+program
+  .command('__complete', { hidden: true })
+  .action(() => {
+    try {
+      const icloudBase = getICloudDrivePath();
+      const configDir = getConfigDir(icloudBase);
+      const db = openDb(configDir);
+      const entries = getAllEntries(db);
+      for (const entry of entries) {
+        console.log(entry.name);
+      }
+      db.close();
+    } catch {
+      // Silently fail during completion
+    }
+  });
+
+program
+  .command('completion', { hidden: true })
+  .description('Output shell completion script (eval "$(ianchor completion)")')
+  .action(() => {
+    const script = `
+###-begin-ianchor-completions-###
+if type compdef &>/dev/null; then
+  _ianchor_complete_zsh() {
+    local entries
+    case "\$words[2]" in
+      recover|relink|remove)
+        entries=("\${(@f)$(ianchor __complete 2>/dev/null)}")
+        compadd -a entries
+        return
+        ;;
+    esac
+    compadd -- init list add recover relink remove
+  }
+  compdef _ianchor_complete_zsh ianchor
+elif type complete &>/dev/null; then
+  _ianchor_complete() {
+    local cur prev commands
+    cur="\${COMP_WORDS[COMP_CWORD]}"
+    prev="\${COMP_WORDS[COMP_CWORD-1]}"
+    commands="init list add recover relink remove"
+
+    case "\$prev" in
+      recover|relink|remove)
+        COMPREPLY=( $(compgen -W "$(ianchor __complete 2>/dev/null)" -- "\$cur") )
+        return
+        ;;
+    esac
+
+    if [[ \$COMP_CWORD -eq 1 ]]; then
+      COMPREPLY=( $(compgen -W "\$commands" -- "\$cur") )
+    fi
+  }
+  complete -F _ianchor_complete ianchor
+fi
+###-end-ianchor-completions-###`.trimStart();
+    console.log(script);
   });
 
 program.parse();

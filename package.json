@@ -7,6 +7,7 @@
     "ianchor": "./bin/ianchor.js"
   },
   "scripts": {
+    "dev": "node bin/ianchor.js",
     "test": "node --test test/**/*.test.js"
   },
   "engines": {
