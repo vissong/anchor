@@ -1,30 +1,37 @@
 # iAnchor
 
-Sync your config files to iCloud Drive via symlinks. Keep dotfiles and app configs in sync across all your Macs automatically.
+通过符号链接将配置文件同步到 iCloud Drive，让所有 Mac 自动共享 dotfiles 和应用配置。
 
-[中文文档](README.zh-CN.md)
+[English](README.en.md)
 
-## How It Works
+## 工作原理
 
-iAnchor moves config files/directories into an iCloud Drive directory, then creates symlinks at the original locations. iCloud syncs the files, and symlinks ensure your apps still find their configs.
+iAnchor 将配置文件/目录移动到 iCloud Drive 中的指定目录，然后在原始位置创建符号链接。iCloud 负责同步文件，符号链接确保应用程序仍能找到配置。
 
-## Install
+## 安装
 
 ```bash
 brew tap vissong/ianchor
 brew install ianchor
 ```
 
-## Usage
+## 升级
 
-### Initialize
+```bash
+brew update
+brew upgrade ianchor
+```
+
+## 使用
+
+### 初始化
 
 ```bash
 ianchor init
-ianchor init --dir dotfiles  # custom directory name
+ianchor init --dir dotfiles  # 自定义目录名
 ```
 
-### Add a config file
+### 添加配置文件
 
 ```bash
 ianchor add ~/.zshrc
@@ -32,31 +39,37 @@ ianchor add ~/.ssh --name ssh-config
 ianchor add ~/.config/alacritty
 ```
 
-### List tracked configs
+### 查看已追踪的配置
 
 ```bash
 ianchor list
 ianchor list --json
 ```
 
-### Recover a config file
+### 恢复配置文件
+
+将 iCloud 中的文件拷贝回原始位置，取消符号链接。
 
 ```bash
 ianchor recover .zshrc
-ianchor recover --force .zshrc  # overwrite existing file
+ianchor recover --force .zshrc  # 覆盖已存在的文件
 ```
 
-### Relink an unlinked file
+### 重新链接
+
+为未链接的文件重新创建符号链接。
 
 ```bash
 ianchor relink .zshrc
 ```
 
-### Remove a tracked file
+### 移除追踪
+
+从数据库中删除记录并删除 iCloud 中的文件。
 
 ```bash
 ianchor remove .zshrc
-ianchor remove -y .zshrc  # skip confirmation
+ianchor remove -y .zshrc  # 跳过确认
 ```
 
 ## License
