@@ -13,9 +13,8 @@ class Ianchor < Formula
     bin.install_symlink libexec/"bin/ianchor.js" => "ianchor"
 
     # Generate and install shell completions
-    output = Utils.safe_popen_read(libexec/"bin/ianchor.js", "completion")
-    (bash_completion/"ianchor").write output
-    (zsh_completion/"_ianchor").write output
+    (zsh_completion/"_ianchor").write Utils.safe_popen_read(libexec/"bin/ianchor.js", "completion", "zsh")
+    (bash_completion/"ianchor").write Utils.safe_popen_read(libexec/"bin/ianchor.js", "completion", "bash")
   end
 
   test do

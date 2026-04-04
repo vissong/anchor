@@ -229,45 +229,71 @@ program
 
 program
   .command('completion', { hidden: true })
-  .description('Output shell completion script (eval "$(ianchor completion)")')
-  .action(() => {
-    const script = `
-###-begin-ianchor-completions-###
-if type compdef &>/dev/null; then
-  _ianchor_complete_zsh() {
-    local entries
-    case "\$words[2]" in
-      recover|relink|remove)
-        entries=("\${(@f)$(ianchor __complete 2>/dev/null)}")
-        compadd -a entries
-        return
-        ;;
-    esac
-    compadd -- init list add recover relink remove
-  }
-  compdef _ianchor_complete_zsh ianchor
-elif type complete &>/dev/null; then
-  _ianchor_complete() {
-    local cur prev commands
-    cur="\${COMP_WORDS[COMP_CWORD]}"
-    prev="\${COMP_WORDS[COMP_CWORD-1]}"
-    commands="init list add recover relink remove"
+  .description('Output shell completion script')
+  .argument('[shell]', 'shell type: zsh or bash', 'zsh')
+  .action((shell) => {
+    if (shell === 'zsh') {
+      const script = `#compdef ianchor
 
-    case "\$prev" in
-      recover|relink|remove)
-        COMPREPLY=( $(compgen -W "$(ianchor __complete 2>/dev/null)" -- "\$cur") )
-        return
-        ;;
-    esac
+_ianchor() {
+  local -a commands
+  commands=(
+    'init:Initialize ianchor'
+    'list:List all tracked config files'
+    'add:Add a file or directory to iCloud'
+    'recover:Recover a file from iCloud'
+    'relink:Re-create symlink for an unlinked file'
+    'remove:Remove an entry and delete from iCloud'
+  )
 
-    if [[ \$COMP_CWORD -eq 1 ]]; then
-      COMPREPLY=( $(compgen -W "\$commands" -- "\$cur") )
-    fi
-  }
-  complete -F _ianchor_complete ianchor
-fi
+  _arguments -C \\
+    '1:command:->cmds' \\
+    '*::arg:->args'
+
+  case "\$state" in
+    cmds)
+      _describe -t commands 'ianchor command' commands
+      ;;
+    args)
+      case "\$words[1]" in
+        recover|relink|remove)
+          local -a entries
+          entries=("\${(@f)$(ianchor __complete 2>/dev/null)}")
+          _describe -t entries 'entry name' entries
+          ;;
+        add)
+          _files
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_ianchor "\$@"`.trimStart();
+      console.log(script);
+    } else {
+      const script = `###-begin-ianchor-completions-###
+_ianchor_complete() {
+  local cur prev commands
+  cur="\${COMP_WORDS[COMP_CWORD]}"
+  prev="\${COMP_WORDS[COMP_CWORD-1]}"
+  commands="init list add recover relink remove"
+
+  case "\$prev" in
+    recover|relink|remove)
+      COMPREPLY=( $(compgen -W "$(ianchor __complete 2>/dev/null)" -- "\$cur") )
+      return
+      ;;
+  esac
+
+  if [[ \$COMP_CWORD -eq 1 ]]; then
+    COMPREPLY=( $(compgen -W "\$commands" -- "\$cur") )
+  fi
+}
+complete -F _ianchor_complete ianchor
 ###-end-ianchor-completions-###`.trimStart();
-    console.log(script);
+      console.log(script);
+    }
   });
 
 program.parse();
