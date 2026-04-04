@@ -1,8 +1,8 @@
 class Ianchor < Formula
   desc "Sync config files to iCloud Drive via symlinks"
   homepage "https://github.com/vissong/ianchor"
-  url "https://github.com/vissong/anchor/archive/refs/tags/v0.1.3.tar.gz"
-  sha256 "f47a8ea9ac8c39b54a46df9649cbeeae33c4b1e7ce24beeb247200feb9a4e223"
+  url "https://github.com/vissong/anchor/archive/refs/tags/v0.1.4.tar.gz"
+  sha256 "cf2d72a31145a33a471c4439d743dcd845afd9012358ba86a499c8e8e83501e0"
   license "MIT"
 
   depends_on "node"
