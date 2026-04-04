@@ -44,4 +44,4 @@ Tests use Node.js built-in `node:test` module with `node:assert/strict`. Each `l
 - ES modules (`"type": "module"` in package.json)
 - Node.js >=18.0.0 required
 - Dependencies: `better-sqlite3`, `chalk`, `cli-table3`, `commander`
-- Distribution via Homebrew (`Formula/ianchor.rb`); release script at `scripts/release.sh`
+- Distribution via Homebrew (tap: `vissong/homebrew-ianchor`); release via `scripts/tag.sh` + GitHub Actions
