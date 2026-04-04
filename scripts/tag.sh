@@ -28,7 +28,7 @@ TAG="v${VERSION}"
 echo "==> ${CURRENT} -> ${VERSION} (${BUMP})"
 
 # Commit version bump
-git add package.json
+git add package.json package-lock.json
 git commit -m "chore: bump version to ${TAG}"
 
 # Delete old tag if exists
